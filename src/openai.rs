@@ -13,7 +13,8 @@ pub async fn completion(
     let args = CreateCompletionRequestArgs::default()
         .prompt(prompt)
         .model("text-davinci-003")
-        .top_p(0.7)
+        .temperature(0.7)
+        .max_tokens(512u16)
         .build()?;
     client.completions().create(args).await
 }

@@ -1,8 +1,10 @@
+use crate::evaluator::evaluator;
+use async_openai::Client as OpenAIClient;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::process;
 
-pub async fn start_repl(evaluator: impl Fn(&str)) {
+pub async fn start_repl(openai_client: &OpenAIClient) {
     let mut rl = Editor::<()>::new().unwrap();
 
     loop {
@@ -10,7 +12,7 @@ pub async fn start_repl(evaluator: impl Fn(&str)) {
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                evaluator(line.as_str());
+                evaluator(openai_client, line.as_str()).await;
             }
             Err(ReadlineError::Interrupted) => {
                 // Ctrl-C

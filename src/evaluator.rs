@@ -1,19 +1,18 @@
 use crate::openai::completion;
 use async_openai::Client as OpenAIClient;
+use spinoff::{Color, Spinner, Spinners};
 
-pub fn evaluator<'a>(openai_client: &'a OpenAIClient) -> Box<dyn Fn(&str) + 'a> {
-    Box::new(|line: &str| {
-        println!("Prompt: {}", line);
-        let completion_result = completion(openai_client, line);
-        async {
-            match completion_result.await {
-                Ok(response) => {
-                    println!("Response: {}", response.choices[0].text);
-                }
-                Err(err) => {
-                    println!("Error: {}", err);
-                }
-            }
-        };
-    })
+pub async fn evaluator<'a>(openai_client: &'a OpenAIClient, line: &str) {
+    let spinner = Spinner::new(Spinners::Dots, "Waiting for response...", Color::White);
+    let completion_result = completion(openai_client, line).await;
+    spinner.stop();
+
+    match completion_result {
+        Ok(response) => {
+            println!("{}", response.choices[0].text);
+        }
+        Err(err) => {
+            println!("Error: {}", err);
+        }
+    };
 }
