@@ -11,8 +11,13 @@ pub async fn start_repl(openai_client: &OpenAIClient) {
         let readline = rl.readline("> ");
         match readline {
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
-                evaluator(openai_client, line.as_str()).await;
+                let line = line.trim();
+                if line.len() == 0 {
+                    continue;
+                }
+
+                rl.add_history_entry(line);
+                evaluator(openai_client, line).await;
             }
             Err(ReadlineError::Interrupted) => {
                 // Ctrl-C
