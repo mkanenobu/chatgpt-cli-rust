@@ -25,7 +25,7 @@ impl<'a> Evaluator for Eval<'a> {
     }
 }
 
-async fn evaluator<'a>(openai_client: &'a OpenAIClient, line: &str) {
+async fn evaluator(openai_client: &OpenAIClient, line: &str) {
     if line.trim().len() == 0 {
         return;
     }
