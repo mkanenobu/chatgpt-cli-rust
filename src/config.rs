@@ -10,10 +10,12 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Config {
-        let config = read_config_by_json_file();
+        read_config_by_json_file()
+    }
+
+    pub fn init(&self) {
         // async-openai can only use env value
-        env::set_var("OPENAI_API_KEY", &config.api_key);
-        config
+        env::set_var("OPENAI_API_KEY", &self.api_key);
     }
 }
 
