@@ -26,6 +26,9 @@ impl<'a> Evaluator for Eval<'a> {
 }
 
 async fn evaluator<'a>(openai_client: &'a OpenAIClient, line: &str) {
+    if line.trim().len() == 0 {
+        return;
+    }
     let spinner = Spinner::new(Spinners::Dots, "Waiting for response...", Color::White);
     let completion_result = completion(openai_client, line).await;
     spinner.stop();
