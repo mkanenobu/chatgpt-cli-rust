@@ -1,3 +1,4 @@
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::{env, fs};
@@ -9,8 +10,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Config {
-        read_config_by_json_file()
+    pub fn new() -> Result<Config> {
+        read_config_by_json_file(config_filepath())
     }
 
     pub fn init(&self) {
@@ -19,11 +20,11 @@ impl Config {
     }
 }
 
-fn read_config_by_json_file() -> Config {
-    let path = config_filepath();
-    let config_string = fs::read_to_string(path).unwrap();
-    let config: Config = serde_json::from_str(&config_string).unwrap();
-    config
+fn read_config_by_json_file(path: PathBuf) -> Result<Config> {
+    let config_string = fs::read_to_string(path)?;
+    let config: Config = serde_json::from_str(&config_string)?;
+    validate(&config)?;
+    Ok(config)
 }
 
 fn config_filepath() -> PathBuf {
@@ -32,4 +33,11 @@ fn config_filepath() -> PathBuf {
     path.push("chatgpt-cli");
     path.push("config.json");
     path
+}
+
+fn validate(config: &Config) -> Result<()> {
+    if config.api_key.len() == 0 {
+        bail!("api_key is empty");
+    }
+    Ok(())
 }

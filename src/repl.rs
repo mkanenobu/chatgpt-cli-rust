@@ -1,9 +1,9 @@
-use crate::evaluator::Evaluator;
+use crate::evaluator::Eval;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::process;
 
-pub async fn start_repl(evaluator: impl Evaluator) {
+pub async fn start_repl(evaluator: impl Eval) {
     let mut rl = Editor::<()>::new().unwrap();
 
     loop {

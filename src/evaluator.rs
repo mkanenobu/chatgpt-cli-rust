@@ -4,22 +4,22 @@ use async_trait::async_trait;
 use spinoff::{Color, Spinner, Spinners};
 
 #[async_trait]
-pub trait Evaluator {
+pub trait Eval {
     async fn eval(&self, line: &str);
 }
 
-pub struct Eval<'a> {
+pub struct Evaluator<'a> {
     openai_client: &'a OpenAIClient,
 }
 
-impl<'a> Eval<'a> {
-    pub fn new(openai_client: &'a OpenAIClient) -> Eval<'a> {
-        Eval { openai_client }
+impl<'a> Evaluator<'a> {
+    pub fn new(openai_client: &'a OpenAIClient) -> Evaluator<'a> {
+        Evaluator { openai_client }
     }
 }
 
 #[async_trait]
-impl<'a> Evaluator for Eval<'a> {
+impl<'a> Eval for Evaluator<'a> {
     async fn eval(&self, line: &str) {
         evaluator(self.openai_client, line).await
     }
