@@ -36,7 +36,7 @@ fn config_filepath() -> PathBuf {
 }
 
 fn validate(config: &Config) -> Result<()> {
-    if config.api_key.len() == 0 {
+    if config.api_key.is_empty() {
         bail!("api_key is empty");
     }
     Ok(())

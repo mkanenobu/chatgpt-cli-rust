@@ -13,3 +13,4 @@ args = ["build", "--release"]
 [tasks.install]
 command = "install"
 args = ["target/release/chatgpt-repl", "~/.local/bin"]
+dependencies = ["build"]
