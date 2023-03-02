@@ -18,7 +18,6 @@ pub async fn completion(
         role: Role::User,
         name: None,
     };
-    // message.content = prompt.to_string();
 
     let args = CreateChatCompletionRequestArgs::default()
         .messages(vec![message])
