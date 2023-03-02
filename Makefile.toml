@@ -9,3 +9,7 @@ args = ["run"]
 [tasks.build]
 command = "cargo"
 args = ["build", "--release"]
+
+[tasks.lint]
+command = "cargo"
+args = ["clippy", "--all-targets", "--all-features"]

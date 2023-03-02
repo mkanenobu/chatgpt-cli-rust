@@ -1,4 +1,5 @@
 use crate::openai::completion;
+use async_openai::types::CreateChatCompletionResponse;
 use async_openai::Client as OpenAIClient;
 use async_trait::async_trait;
 use spinoff::{Color, Spinner, Spinners};
@@ -25,6 +26,15 @@ impl<'a> Eval for Evaluator<'a> {
     }
 }
 
+fn format_response(response: CreateChatCompletionResponse) -> String {
+    response
+        .choices
+        .iter()
+        .map(|choice| choice.message.content.trim())
+        .collect::<Vec<&str>>()
+        .join("\n")
+}
+
 async fn evaluator(openai_client: &OpenAIClient, line: &str) {
     if line.trim().is_empty() {
         return;
@@ -35,7 +45,7 @@ async fn evaluator(openai_client: &OpenAIClient, line: &str) {
 
     match completion_result {
         Ok(response) => {
-            println!("{}", response.choices[0].message.content);
+            println!("{}", format_response(response));
         }
         Err(err) => {
             println!("Error: {}", err);
