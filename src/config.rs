@@ -13,11 +13,6 @@ impl Config {
     pub fn new() -> Result<Config> {
         read_config_by_json_file(config_filepath())
     }
-
-    pub fn init(&self) {
-        // async-openai can only use env value
-        env::set_var("OPENAI_API_KEY", &self.api_key);
-    }
 }
 
 fn read_config_by_json_file(path: PathBuf) -> Result<Config> {

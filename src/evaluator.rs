@@ -35,7 +35,7 @@ async fn evaluator(openai_client: &OpenAIClient, line: &str) {
 
     match completion_result {
         Ok(response) => {
-            println!("{}", response.choices[0].text);
+            println!("{}", response.choices[0].message.content);
         }
         Err(err) => {
             println!("Error: {}", err);

@@ -9,8 +9,3 @@ args = ["run"]
 [tasks.build]
 command = "cargo"
 args = ["build", "--release"]
-
-[tasks.install]
-command = "install"
-args = ["target/release/chatgpt-repl", "~/.local/bin"]
-dependencies = ["build"]

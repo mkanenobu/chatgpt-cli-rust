@@ -8,9 +8,9 @@ use crate::repl::start_repl;
 
 #[tokio::main]
 async fn main() {
-    config::Config::new().unwrap().init();
+    let conf = config::Config::new().unwrap();
 
-    let client = openai::client();
+    let client = openai::client(conf.api_key);
     let evaluator = Evaluator::new(&client);
 
     start_repl(evaluator).await;

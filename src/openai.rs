@@ -1,20 +1,29 @@
 use async_openai::error::OpenAIError;
-use async_openai::types::{CreateCompletionRequestArgs, CreateCompletionResponse};
+use async_openai::types::{
+    ChatCompletionRequestMessage, CreateChatCompletionRequestArgs, CreateChatCompletionResponse,
+    Role,
+};
 use async_openai::Client;
 
-pub fn client() -> Client {
-    Client::new()
+pub fn client(api_key: String) -> Client {
+    Client::new().with_api_key(api_key)
 }
 
 pub async fn completion(
     client: &Client,
     prompt: &str,
-) -> Result<CreateCompletionResponse, OpenAIError> {
-    let args = CreateCompletionRequestArgs::default()
-        .prompt(prompt)
-        .model("text-davinci-003")
+) -> Result<CreateChatCompletionResponse, OpenAIError> {
+    let message = ChatCompletionRequestMessage {
+        content: prompt.to_string(),
+        role: Role::User,
+        name: None,
+    };
+    // message.content = prompt.to_string();
+
+    let args = CreateChatCompletionRequestArgs::default()
+        .messages(vec![message])
+        .model("gpt-3.5-turbo")
         .temperature(0.7)
-        .max_tokens(512u16)
         .build()?;
-    client.completions().create(args).await
+    client.chat().create(args).await
 }
