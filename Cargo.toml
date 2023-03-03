@@ -9,6 +9,7 @@ edition = "2021"
 anyhow = "1.0.68"
 async-openai = "0.8.0"
 async-trait = "0.1.61"
+clap = { version = "4.1.8", features = ["derive"] }
 getopts = "0.2.21"
 rustyline = "10.0.0"
 serde = "1.0.152"
