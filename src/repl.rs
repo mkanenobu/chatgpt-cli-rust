@@ -12,7 +12,7 @@ fn history_filepath() -> PathBuf {
     path
 }
 
-pub async fn start_repl(evaluator: impl Eval) {
+pub async fn start_repl(mut evaluator: impl Eval) {
     let mut rl = Editor::<()>::new().unwrap();
     let filepath = history_filepath();
     rl.load_history(&filepath).unwrap();
@@ -21,8 +21,9 @@ pub async fn start_repl(evaluator: impl Eval) {
         let readline = rl.readline("> ");
         match readline {
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
-                evaluator.eval(line.as_str()).await;
+                let line = line.trim();
+                rl.add_history_entry(line);
+                evaluator.eval(line).await;
             }
             Err(ReadlineError::Interrupted) => {
                 // Ctrl-C
