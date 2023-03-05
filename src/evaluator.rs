@@ -31,7 +31,7 @@ impl<'a> Evaluator<'a> {
 }
 
 const HELP: &str = "
-.help                   # Show help
+.help                   # Show this help
 .messages               # Show messages stack
 .enable-multiline-mode  # Enable multi-line mode
 .disable-multiline-mode # Disable multi-line mode
