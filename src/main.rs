@@ -1,11 +1,12 @@
 mod config;
 mod evaluator;
+mod message;
 mod openai;
 mod repl;
 mod set_api_key_prompt;
 
 use crate::evaluator::Evaluator;
-use crate::openai::Messages;
+use crate::message::Messages;
 use crate::repl::start_repl;
 use crate::set_api_key_prompt::set_api_key_prompt;
 use clap::Parser;

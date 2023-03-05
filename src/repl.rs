@@ -1,4 +1,4 @@
-use crate::evaluator::Eval;
+use crate::evaluator::Evaluator;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::{env, fs, path::PathBuf, process};
@@ -12,13 +12,19 @@ fn history_filepath() -> PathBuf {
     path
 }
 
-pub async fn start_repl(mut evaluator: impl Eval) {
+pub async fn start_repl<'a>(mut evaluator: Evaluator<'a>) {
     let mut rl = Editor::<()>::new().unwrap();
     let filepath = history_filepath();
     rl.load_history(&filepath).unwrap();
+    Evaluator::print_help();
 
     loop {
-        let readline = rl.readline("> ");
+        let prompt = if evaluator.multi_line_mode {
+            ">> "
+        } else {
+            "> "
+        };
+        let readline = rl.readline(prompt);
         match readline {
             Ok(line) => {
                 let line = line.trim();
