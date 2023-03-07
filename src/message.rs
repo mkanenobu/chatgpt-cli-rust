@@ -26,10 +26,10 @@ impl fmt::Display for Messages {
 }
 
 impl Messages {
-    pub fn new(system_context_message: &Option<String>) -> Messages {
+    pub fn new(system_context_message: Option<String>) -> Messages {
         let mut msgs = Messages { messages: vec![] };
         if let Some(msg) = system_context_message {
-            msgs.push(create_message(msg, Role::System));
+            msgs.push(create_message(&msg, Role::System));
         }
         msgs
     }

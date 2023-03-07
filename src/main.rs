@@ -5,6 +5,7 @@ mod openai;
 mod repl;
 mod set_api_key_prompt;
 
+use crate::config::Config;
 use crate::evaluator::Evaluator;
 use crate::message::Messages;
 use crate::repl::start_repl;
@@ -14,9 +15,10 @@ use clap::Parser;
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    let conf = config::Config::new();
+    let conf = Config::new().unwrap_or(Config::default());
 
-    let mut msgs = Messages::new(&args.system_context);
+    let system_context = args.system_context.or(conf.system_context);
+    let mut msgs = Messages::new(system_context);
 
     if args.set_api_key {
         set_api_key_prompt();
