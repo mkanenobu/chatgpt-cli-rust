@@ -3,10 +3,11 @@ mod evaluator;
 mod message;
 mod openai;
 mod repl;
+mod say;
 mod set_api_key_prompt;
 
 use crate::config::Config;
-use crate::evaluator::Evaluator;
+use crate::evaluator::{Evaluator, EvaluatorConfig};
 use crate::message::Messages;
 use crate::repl::start_repl;
 use crate::set_api_key_prompt::set_api_key_prompt;
@@ -19,12 +20,13 @@ async fn main() {
 
     let system_context = args.system_context.or(conf.system_context);
     let mut msgs = Messages::new(system_context);
+    let evaluator_config = EvaluatorConfig { say: args.say };
 
     if args.set_api_key {
         set_api_key_prompt();
     } else if let Some(api_key) = conf.api_key {
         let client = openai::client(api_key);
-        let evaluator = Evaluator::new(&client, &mut msgs);
+        let evaluator = Evaluator::new(&client, &mut msgs, evaluator_config);
 
         start_repl(evaluator).await;
     } else {
@@ -43,4 +45,8 @@ pub struct Args {
     /// System context
     #[arg(long)]
     system_context: Option<String>,
+
+    /// Say
+    #[arg(long)]
+    say: bool,
 }

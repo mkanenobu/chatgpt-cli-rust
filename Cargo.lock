@@ -110,6 +110,7 @@ dependencies = [
  "serde_json",
  "spinoff",
  "tokio",
+ "tokio-util",
 ]
 
 [[package]]

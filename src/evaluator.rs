@@ -1,23 +1,37 @@
 use crate::message::{create_message, Messages};
 use crate::openai::completion;
+use crate::say::say;
 use async_openai::types::{CreateChatCompletionResponse, Role as MessageRole};
 use async_openai::Client as OpenAIClient;
 use spinoff::{Color, Spinner, Spinners};
+use tokio::process::Child;
 
 pub struct Evaluator<'a> {
     openai_client: &'a OpenAIClient,
     messages: &'a mut Messages,
     pub multi_line_mode: bool,
     multi_line_mode_message_stack: Vec<String>,
+    config: EvaluatorConfig,
+    say_child_process: Option<Child>,
+}
+
+pub struct EvaluatorConfig {
+    pub say: bool,
 }
 
 impl<'a> Evaluator<'a> {
-    pub fn new(openai_client: &'a OpenAIClient, messages: &'a mut Messages) -> Evaluator<'a> {
+    pub fn new(
+        openai_client: &'a OpenAIClient,
+        messages: &'a mut Messages,
+        config: EvaluatorConfig,
+    ) -> Evaluator<'a> {
         Evaluator {
             openai_client,
             messages,
             multi_line_mode: false,
             multi_line_mode_message_stack: vec![],
+            config,
+            say_child_process: None,
         }
     }
 
@@ -68,7 +82,7 @@ impl<'a> Evaluator<'a> {
                 self.messages
                     .push(create_message(&message, MessageRole::User));
                 self.multi_line_mode_message_stack = vec![];
-                openai_completion(self.openai_client, self.messages).await;
+                self.openai_completion().await;
             }
             _ => {
                 if self.multi_line_mode {
@@ -77,26 +91,34 @@ impl<'a> Evaluator<'a> {
                 }
 
                 self.messages.push(create_message(line, MessageRole::User));
-                openai_completion(self.openai_client, self.messages).await;
+                self.openai_completion().await;
             }
         }
     }
-}
 
-async fn openai_completion(openai_client: &OpenAIClient, messages: &mut Messages) {
-    let spinner = Spinner::new(Spinners::Dots, "Waiting for response...", Color::White);
-    let completion_result = completion(openai_client, messages).await;
-    spinner.stop();
+    async fn openai_completion(&mut self) {
+        let spinner = Spinner::new(Spinners::Dots, "Waiting for response...", Color::White);
+        let completion_result = completion(self.openai_client, self.messages).await;
+        spinner.stop();
 
-    match completion_result {
-        Ok(response) => {
-            println!("{}", format_response(response));
-        }
-        Err(err) => {
-            println!("Error: {}", err);
-            messages.pop();
-        }
-    };
+        match completion_result {
+            Ok(response) => {
+                let response = format_response(response);
+                if let Some(mut child_process) = self.say_child_process.take() {
+                    let _ = child_process.kill().await;
+                }
+                if self.config.say {
+                    let child_process = say(&response).await;
+                    self.say_child_process = Some(child_process);
+                }
+                println!("{}", response);
+            }
+            Err(err) => {
+                println!("Error: {}", err);
+                self.messages.pop();
+            }
+        };
+    }
 }
 
 fn format_response(response: CreateChatCompletionResponse) -> String {
