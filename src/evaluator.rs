@@ -114,6 +114,8 @@ impl<'a> Evaluator<'a> {
                         }
                     }
                 }
+                write!(lock, "\n").unwrap();
+                lock.flush().unwrap();
             }
             Err(err) => {
                 println!("Error: {:?}", err);
