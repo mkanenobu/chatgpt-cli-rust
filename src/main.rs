@@ -20,7 +20,7 @@ async fn main() {
 
     let system_context = args.system_context.or(conf.system_context);
     let mut msgs = Messages::new(system_context);
-    let evaluator_config = EvaluatorConfig { say: args.say };
+    let evaluator_config = EvaluatorConfig {};
 
     if args.set_api_key {
         set_api_key_prompt();
@@ -45,8 +45,4 @@ pub struct Args {
     /// System context
     #[arg(long)]
     system_context: Option<String>,
-
-    /// Say
-    #[arg(long)]
-    say: bool,
 }
