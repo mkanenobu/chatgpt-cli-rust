@@ -10,6 +10,15 @@ pub struct Config {
 
     #[serde(rename = "systemContext")]
     pub system_context: Option<String>,
+
+    #[serde(rename = "model")]
+    pub model: Option<String>,
+
+    #[serde(rename = "temperature")]
+    pub temperature: Option<f32>,
+
+    #[serde(rename = "topP")]
+    pub top_p: Option<f32>,
 }
 
 impl Config {
@@ -21,6 +30,9 @@ impl Config {
         Config {
             api_key: None,
             system_context: None,
+            model: Some("gpt-3.5-turbo".to_string()),
+            temperature: Some(0.7),
+            top_p: Some(1.0),
         }
     }
 }

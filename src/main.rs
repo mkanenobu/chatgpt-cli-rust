@@ -20,7 +20,11 @@ async fn main() {
 
     let system_context = args.system_context.or(conf.system_context);
     let mut msgs = Messages::new(system_context);
-    let evaluator_config = EvaluatorConfig {};
+    let evaluator_config = EvaluatorConfig {
+        model: conf.model,
+        temperature: conf.temperature,
+        top_p: conf.top_p,
+    };
 
     if args.set_api_key {
         set_api_key_prompt();

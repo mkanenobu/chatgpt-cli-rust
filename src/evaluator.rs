@@ -1,8 +1,12 @@
 use crate::message::{create_message, Messages};
 use crate::openai::completion_stream;
-use async_openai::types::Role as MessageRole;
+use anyhow::{anyhow, Result};
+use async_openai::types::{
+    CreateChatCompletionRequest, CreateChatCompletionRequestArgs, Role as MessageRole,
+};
 use async_openai::Client as OpenAIClient;
 use futures::StreamExt;
+use spinoff::{spinners, Spinner};
 use std::io::{stdout, Write};
 
 pub struct Evaluator<'a> {
@@ -14,8 +18,11 @@ pub struct Evaluator<'a> {
     config: EvaluatorConfig,
 }
 
-// TODO: engine, temperature などを設定ファイルから指定できるようにする
-pub struct EvaluatorConfig {}
+pub struct EvaluatorConfig {
+    pub model: Option<String>,
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+}
 
 impl<'a> Evaluator<'a> {
     pub fn new(
@@ -79,7 +86,7 @@ impl<'a> Evaluator<'a> {
                 self.messages
                     .push(create_message(&message, MessageRole::User));
                 self.multi_line_mode_message_stack = vec![];
-                self.openai_completion_stream().await;
+                self.openai_completion_stream().await.unwrap();
             }
             _ => {
                 if self.multi_line_mode {
@@ -88,24 +95,29 @@ impl<'a> Evaluator<'a> {
                 }
 
                 self.messages.push(create_message(line, MessageRole::User));
-                self.openai_completion_stream().await;
+                self.openai_completion_stream().await.unwrap();
             }
         }
     }
 
-    async fn openai_completion_stream(&mut self) {
-        let completion_stream = completion_stream(self.openai_client, self.messages).await;
+    async fn openai_completion_stream(&mut self) -> Result<()> {
+        // FIXME: たぶん stdout のロックのせいでスピナーが動かない
+        let spinner = Spinner::new(spinners::Dots, "Waiting for OpenAI response...", None);
+        let completion_args = self.build_completion_args()?;
+        let completion_stream = completion_stream(self.openai_client, completion_args).await;
+        spinner.clear();
 
-        let mut lock = stdout().lock();
         match completion_stream {
             Ok(mut stream) => {
+                let mut stdout = stdout().lock();
+
                 while let Some(msg) = stream.next().await {
                     match msg {
                         Ok(response) => {
                             response.choices.iter().for_each(|chat_choice| {
                                 if let Some(ref content) = chat_choice.delta.content {
-                                    write!(lock, "{}", content).unwrap();
-                                    lock.flush().unwrap();
+                                    write!(stdout, "{}", content).unwrap();
+                                    stdout.flush().unwrap();
                                 }
                             });
                         }
@@ -114,13 +126,29 @@ impl<'a> Evaluator<'a> {
                         }
                     }
                 }
-                write!(lock, "\n").unwrap();
-                lock.flush().unwrap();
+                writeln!(stdout).unwrap();
+                stdout.flush().unwrap();
             }
             Err(err) => {
                 println!("Error: {:?}", err);
                 self.messages.pop();
             }
         }
+        Ok(())
+    }
+
+    fn build_completion_args(&self) -> Result<CreateChatCompletionRequest> {
+        CreateChatCompletionRequestArgs::default()
+            .model(
+                self.config
+                    .model
+                    .clone()
+                    .unwrap_or("gpt-3.5-turbo".to_string()),
+            )
+            .temperature(self.config.temperature.unwrap_or(0.7))
+            .top_p(self.config.top_p.unwrap_or(1.0))
+            .messages(self.messages.messages.as_ref())
+            .build()
+            .map_err(|err| anyhow!(err))
     }
 }
