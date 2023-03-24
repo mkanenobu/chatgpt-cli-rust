@@ -18,6 +18,7 @@ pub struct Evaluator<'a> {
     config: EvaluatorConfig,
 }
 
+#[derive(Debug)]
 pub struct EvaluatorConfig {
     pub model: Option<String>,
     pub temperature: Option<f32>,
@@ -53,6 +54,7 @@ const HELP: &str = "
 .messages               # Show messages stack
 .enable-multiline-mode  # Enable multi-line mode
 .disable-multiline-mode # Disable multi-line mode
+.config                 # Show config
 .send                   # Send multi-line message
 ";
 
@@ -76,6 +78,9 @@ impl<'a> Evaluator<'a> {
             ".disable-multiline-mode" => {
                 self.multi_line_mode = false;
                 println!("Multi-line mode disabled.");
+            }
+            ".config" => {
+                println!("Config: {:#?}", &self.config);
             }
             ".send" => {
                 if !self.multi_line_mode {

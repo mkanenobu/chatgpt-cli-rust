@@ -32,6 +32,7 @@ pub async fn start_repl(mut evaluator: Evaluator<'_>) {
                 let line = line.trim();
                 rl.add_history_entry(line).unwrap();
                 evaluator.eval(line).await;
+                rl.save_history(&history_filepath).unwrap();
             }
             Err(ReadlineError::Interrupted) => {
                 // Ctrl-C
