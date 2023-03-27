@@ -31,18 +31,16 @@ pub async fn start_repl(mut evaluator: Evaluator<'_>) {
             Ok(line) => {
                 let line = line.trim();
                 rl.add_history_entry(line).unwrap();
-                evaluator.eval(line).await;
                 rl.save_history(&history_filepath).unwrap();
+                evaluator.eval(line).await;
             }
             Err(ReadlineError::Interrupted) => {
                 // Ctrl-C
-                rl.save_history(&history_filepath).unwrap();
                 println!("Bye!");
                 process::exit(0);
             }
             Err(ReadlineError::Eof) => {
                 // Ctrl-D
-                rl.save_history(&history_filepath).unwrap();
                 println!("Bye!");
                 process::exit(0);
             }
