@@ -41,4 +41,8 @@ impl Messages {
     pub fn pop(&mut self) -> Option<ChatCompletionRequestMessage> {
         self.messages.pop()
     }
+
+    pub fn clear(&mut self) {
+        self.messages.clear();
+    }
 }

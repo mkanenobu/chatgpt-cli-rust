@@ -51,6 +51,7 @@ impl<'a> Evaluator<'a> {
 
 const HELP: &str = "
 .help                   # Show this help
+.clear                  # Clear messages stack
 .messages               # Show messages stack
 .enable-multiline-mode  # Enable multi-line mode
 .disable-multiline-mode # Disable multi-line mode
@@ -92,6 +93,10 @@ impl<'a> Evaluator<'a> {
                     .push(create_message(&message, MessageRole::User));
                 self.multi_line_mode_message_stack = vec![];
                 self.openai_completion_stream().await.unwrap();
+            }
+            ".clear" => {
+                self.messages.clear();
+                println!("Clear message stack");
             }
             _ => {
                 if self.multi_line_mode {
