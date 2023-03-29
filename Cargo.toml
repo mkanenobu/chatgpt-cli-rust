@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.68"
-async-openai = "0.10.0"
+async-openai = "0.10.1"
 clap = { version = "4.1.8", features = ["derive"] }
 getopts = "0.2.21"
 rustyline = "11.0"
@@ -17,3 +17,4 @@ tokio = { version = "1", features = ["full"] }
 tokio-util = "0.7"
 futures = "0.3"
 spinoff = "0.7.0"
+stream-cancel = "0.8.1"

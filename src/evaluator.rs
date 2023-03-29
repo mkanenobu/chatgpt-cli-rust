@@ -5,9 +5,10 @@ use async_openai::types::{
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs, Role as MessageRole,
 };
 use async_openai::Client as OpenAIClient;
-use futures::StreamExt;
+use futures::prelude::*;
 use spinoff::{spinners, Spinner};
 use std::io::{stdout, Write};
+use stream_cancel::{StreamExt, Tripwire};
 
 pub struct Evaluator<'a> {
     openai_client: &'a OpenAIClient,
@@ -123,8 +124,15 @@ impl<'a> Evaluator<'a> {
 
         let mut buf = String::new();
         match completion_stream {
-            Ok(mut stream) => {
+            Ok(stream) => {
                 let mut stdout = stdout().lock();
+                let (trigger, tripwire) = Tripwire::new();
+
+                let mut stream = stream.take_until_if(tripwire);
+                tokio::spawn(async move {
+                    tokio::signal::ctrl_c().await.unwrap();
+                    drop(trigger);
+                });
 
                 while let Some(msg) = stream.next().await {
                     match msg {
