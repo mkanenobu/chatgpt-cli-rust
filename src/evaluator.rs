@@ -92,7 +92,9 @@ impl<'a> Evaluator<'a> {
                 self.messages
                     .push(create_message(&message, MessageRole::User));
                 self.multi_line_mode_message_stack = vec![];
-                self.openai_completion_stream().await.unwrap();
+                let response = self.openai_completion_stream().await.unwrap();
+                self.messages
+                    .push(create_message(&response, MessageRole::Assistant));
             }
             ".clear" => {
                 self.messages.clear();
@@ -105,18 +107,21 @@ impl<'a> Evaluator<'a> {
                 }
 
                 self.messages.push(create_message(line, MessageRole::User));
-                self.openai_completion_stream().await.unwrap();
+                let response = self.openai_completion_stream().await.unwrap();
+                self.messages
+                    .push(create_message(&response, MessageRole::Assistant));
             }
         }
     }
 
-    async fn openai_completion_stream(&mut self) -> Result<()> {
+    async fn openai_completion_stream(&mut self) -> Result<String> {
         // FIXME: たぶん stdout のロックのせいでスピナーが動かない
         let spinner = Spinner::new(spinners::Dots, "Waiting for OpenAI response...", None);
         let completion_args = self.build_completion_args()?;
         let completion_stream = completion_stream(self.openai_client, completion_args).await;
         spinner.clear();
 
+        let mut buf = String::new();
         match completion_stream {
             Ok(mut stream) => {
                 let mut stdout = stdout().lock();
@@ -126,6 +131,7 @@ impl<'a> Evaluator<'a> {
                         Ok(response) => {
                             response.choices.iter().for_each(|chat_choice| {
                                 if let Some(ref content) = chat_choice.delta.content {
+                                    buf.push_str(content);
                                     write!(stdout, "{}", content).unwrap();
                                     stdout.flush().unwrap();
                                 }
@@ -144,7 +150,7 @@ impl<'a> Evaluator<'a> {
                 self.messages.pop();
             }
         }
-        Ok(())
+        Ok(buf)
     }
 
     fn build_completion_args(&self) -> Result<CreateChatCompletionRequest> {
@@ -157,7 +163,7 @@ impl<'a> Evaluator<'a> {
             )
             .temperature(self.config.temperature.unwrap_or(0.7))
             .top_p(self.config.top_p.unwrap_or(1.0))
-            .messages(self.messages.messages.as_ref())
+            .messages(self.messages.merged_messages())
             .build()
             .map_err(|err| anyhow!(err))
     }

@@ -11,26 +11,26 @@ pub fn create_message(content: &str, role: Role) -> ChatCompletionRequestMessage
 
 #[derive(Debug)]
 pub struct Messages {
+    pub system_context: Option<ChatCompletionRequestMessage>,
     pub messages: Vec<ChatCompletionRequestMessage>,
 }
 
 impl fmt::Display for Messages {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
-        let contents = self
-            .messages
-            .iter()
-            .map(|msg| msg.content.clone())
-            .collect::<Vec<String>>();
-        write!(f, "{}", serde_json::to_string_pretty(&contents).unwrap())
+        let mut msgs = self.messages.clone();
+        if let Some(system_context) = &self.system_context {
+            msgs.insert(0, system_context.clone());
+        }
+        write!(f, "{}", serde_json::to_string_pretty(&msgs).unwrap())
     }
 }
 
 impl Messages {
     pub fn new(system_context_message: Option<String>) -> Messages {
-        let mut msgs = Messages { messages: vec![] };
-        if let Some(msg) = system_context_message {
-            msgs.push(create_message(&msg, Role::System));
-        }
+        let msgs = Messages {
+            messages: vec![],
+            system_context: system_context_message.map(|msg| create_message(&msg, Role::System)),
+        };
         msgs
     }
 
@@ -44,5 +44,13 @@ impl Messages {
 
     pub fn clear(&mut self) {
         self.messages.clear();
+    }
+
+    pub fn merged_messages(&self) -> Vec<ChatCompletionRequestMessage> {
+        let mut msgs = self.messages.clone();
+        if let Some(system_context) = &self.system_context {
+            msgs.insert(0, system_context.clone());
+        }
+        msgs
     }
 }
