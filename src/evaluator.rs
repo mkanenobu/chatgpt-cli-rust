@@ -93,9 +93,11 @@ impl<'a> Evaluator<'a> {
                 self.messages
                     .push(create_message(&message, MessageRole::User));
                 self.multi_line_mode_message_stack = vec![];
-                let response = self.openai_completion_stream().await.unwrap();
-                self.messages
-                    .push(create_message(&response, MessageRole::Assistant));
+                let response = self.openai_completion_stream().await;
+                if let Ok(response) = response {
+                    self.messages
+                        .push(create_message(&response, MessageRole::Assistant));
+                }
             }
             ".clear" => {
                 self.messages.clear();
@@ -108,9 +110,11 @@ impl<'a> Evaluator<'a> {
                 }
 
                 self.messages.push(create_message(line, MessageRole::User));
-                let response = self.openai_completion_stream().await.unwrap();
-                self.messages
-                    .push(create_message(&response, MessageRole::Assistant));
+                let response = self.openai_completion_stream().await;
+                if let Ok(response) = response {
+                    self.messages
+                        .push(create_message(&response, MessageRole::Assistant));
+                }
             }
         }
     }
@@ -131,13 +135,19 @@ impl<'a> Evaluator<'a> {
                 let mut stream = stream.take_until_if(tripwire);
                 tokio::spawn(async move {
                     tokio::signal::ctrl_c().await.unwrap();
-                    drop(trigger);
+                    trigger.cancel();
                 });
 
+                let mut finished = false;
                 while let Some(msg) = stream.next().await {
                     match msg {
                         Ok(response) => {
                             response.choices.iter().for_each(|chat_choice| {
+                                if let Some(finish_reason) = &chat_choice.finish_reason {
+                                    if finish_reason == "stop" {
+                                        finished = true;
+                                    }
+                                }
                                 if let Some(ref content) = chat_choice.delta.content {
                                     buf.push_str(content);
                                     write!(stdout, "{}", content).unwrap();
@@ -147,18 +157,23 @@ impl<'a> Evaluator<'a> {
                         }
                         Err(err) => {
                             println!("Error: {:?}", err);
+                            return Err(anyhow!(err));
                         }
                     }
                 }
                 writeln!(stdout).unwrap();
                 stdout.flush().unwrap();
+                if !finished {
+                    return Err(anyhow!("Canceled."));
+                }
+                Ok(buf)
             }
             Err(err) => {
                 println!("Error: {:?}", err);
                 self.messages.pop();
+                Err(anyhow!(err))
             }
         }
-        Ok(buf)
     }
 
     fn build_completion_args(&self) -> Result<CreateChatCompletionRequest> {
