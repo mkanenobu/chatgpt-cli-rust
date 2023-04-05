@@ -27,11 +27,10 @@ impl fmt::Display for Messages {
 
 impl Messages {
     pub fn new(system_context_message: Option<String>) -> Messages {
-        let msgs = Messages {
+        Messages {
             messages: vec![],
             system_context: system_context_message.map(|msg| create_message(&msg, Role::System)),
-        };
-        msgs
+        }
     }
 
     pub fn push(&mut self, msg: ChatCompletionRequestMessage) {
