@@ -8,8 +8,8 @@ pub struct Config {
     pub api_key: Option<String>,
     pub system_context: Option<String>,
     pub model: Option<String>,
-    pub temperature: Option<f32>,
-    pub top_p: Option<f32>,
+    pub temperature: Option<f64>,
+    pub top_p: Option<f64>,
 }
 
 impl Config {
