@@ -5,19 +5,10 @@ use std::{env, fs};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    #[serde(rename = "apiKey")]
     pub api_key: Option<String>,
-
-    #[serde(rename = "systemContext")]
     pub system_context: Option<String>,
-
-    #[serde(rename = "model")]
     pub model: Option<String>,
-
-    #[serde(rename = "temperature")]
     pub temperature: Option<f32>,
-
-    #[serde(rename = "topP")]
     pub top_p: Option<f32>,
 }
 
@@ -40,22 +31,22 @@ impl Config {
 fn read_config_by_json_file() -> Result<Config> {
     let path = get_config_filepath();
     let config_string = fs::read_to_string(path)?;
-    let config: Config = serde_json::from_str(&config_string)?;
+    let config: Config = toml::from_str(&config_string)?;
     Ok(config)
 }
 
-// ~/.config/chatgpt-repl/config.json
+// ~/.config/chatgpt-repl/config.toml
 pub fn get_config_filepath() -> PathBuf {
     let mut path = PathBuf::from(env::var("HOME").unwrap());
     path.push(".config");
     path.push("chatgpt-repl");
-    path.push("config.json");
+    path.push("config.toml");
     path
 }
 
 fn write_config(config: Config) -> Result<()> {
     let path = get_config_filepath();
-    let config_string = serde_json::to_string_pretty(&config)?;
+    let config_string = toml::to_string_pretty(&config)?;
 
     fs::create_dir_all(path.parent().unwrap())?;
     fs::write(path, config_string)?;
