@@ -21,7 +21,7 @@ impl fmt::Display for Messages {
         if let Some(system_context) = &self.system_context {
             msgs.insert(0, system_context.clone());
         }
-        write!(f, "{}", serde_json::to_string_pretty(&msgs).unwrap())
+        write!(f, "{}", serde_yaml::to_string(&msgs).unwrap())
     }
 }
 

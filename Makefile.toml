@@ -13,3 +13,11 @@ args = ["build", "--release"]
 [tasks.lint]
 command = "cargo"
 args = ["clippy", "--all-targets", "--all-features"]
+
+[tasks.fix]
+command = "cargo"
+args = ["fix", "--bin", "chatgpt-repl", "--allow-dirty", "--allow-staged"]
+
+[tasks.fmt]
+command = "cargo"
+args = ["fmt"]
