@@ -16,7 +16,7 @@ pub struct Messages {
 }
 
 impl fmt::Display for Messages {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
         let mut msgs = self.messages.clone();
         if let Some(system_context) = &self.system_context {
             msgs.insert(0, system_context.clone());

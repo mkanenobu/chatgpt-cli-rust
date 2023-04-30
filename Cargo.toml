@@ -13,7 +13,6 @@ getopts = "0.2.21"
 rustyline = "11.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-toml = "0.7"
 tokio = { version = "1", features = ["full"] }
 tokio-util = "0.7"
 futures = "0.3"
