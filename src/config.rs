@@ -23,7 +23,7 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Result<Config> {
-        read_config_by_toml_file()
+        read_config_by_json_file()
     }
 
     pub fn default() -> Config {
@@ -37,7 +37,7 @@ impl Config {
     }
 }
 
-fn read_config_by_toml_file() -> Result<Config> {
+fn read_config_by_json_file() -> Result<Config> {
     let path = get_config_filepath();
     let config_string = fs::read_to_string(path)?;
     let config: Config = serde_json::from_str(&config_string)?;
