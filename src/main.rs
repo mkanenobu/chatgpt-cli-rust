@@ -1,5 +1,6 @@
 mod config;
 mod evaluator;
+mod history;
 mod message;
 mod openai;
 mod repl;

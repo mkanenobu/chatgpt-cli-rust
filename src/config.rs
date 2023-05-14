@@ -44,9 +44,13 @@ fn read_config_by_json_file() -> Result<Config> {
     Ok(config)
 }
 
+pub fn get_home_path() -> PathBuf {
+    PathBuf::from(env::var("HOME").unwrap())
+}
+
 // ~/.config/chatgpt-repl/config.json
 pub fn get_config_filepath() -> PathBuf {
-    let mut path = PathBuf::from(env::var("HOME").unwrap());
+    let mut path = get_home_path();
     path.push(".config");
     path.push("chatgpt-repl");
     path.push("config.json");

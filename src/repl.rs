@@ -1,23 +1,14 @@
 use crate::evaluator::Evaluator;
+use crate::history::load_history;
 use rustyline::error::ReadlineError;
 use rustyline::history::FileHistory;
 use rustyline::Editor;
 use std::{env, fs, path::PathBuf, process};
 
-fn get_history_filepath() -> PathBuf {
-    let mut path = PathBuf::from(env::var("HOME").unwrap());
-    path.push(".chatgpt-repl-history");
-    path
-}
-
 pub async fn start_repl(mut evaluator: Evaluator<'_>) {
     let mut rl = Editor::<(), FileHistory>::new().unwrap();
-    let history_filepath = get_history_filepath();
-    if !history_filepath.exists() {
-        fs::File::create(&history_filepath).unwrap();
-    }
 
-    rl.load_history(&history_filepath).unwrap();
+    load_history(&mut rl);
     Evaluator::print_help();
 
     loop {
