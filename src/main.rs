@@ -1,6 +1,5 @@
 mod config;
 mod evaluator;
-mod history;
 mod message;
 mod openai;
 mod repl;
@@ -17,7 +16,10 @@ use clap::Parser;
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    let conf = Config::new().unwrap_or(Config::default());
+    let conf = Config::new().unwrap_or_else(|err| {
+        eprintln!("Failed to read config json: {}", err);
+        Config::default()
+    });
 
     let system_context = args.system_context.or(conf.system_context);
     let mut msgs = Messages::new(system_context);
