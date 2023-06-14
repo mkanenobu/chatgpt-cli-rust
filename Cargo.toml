@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.68"
-async-openai = "0.10.1"
-clap = { version = "4.1.8", features = ["derive"] }
+anyhow = "1.0.71"
+async-openai = "0.10.3"
+clap = { version = "4.3.3", features = ["derive"] }
 getopts = "0.2.21"
 rustyline = "11.0"
 serde = { version = "1.0", features = ["derive"] }
