@@ -2,15 +2,18 @@ use anyhow::{Context, Result};
 use async_openai::types::{
     ChatCompletionResponseStream, CreateChatCompletionRequest, CreateChatCompletionResponse,
 };
-use async_openai::Client;
+use async_openai::{config::OpenAIConfig, Client};
 
-pub fn client(api_key: String) -> Client {
-    Client::new().with_api_key(api_key)
+pub type OpenAIClient = Client<OpenAIConfig>;
+
+pub fn client(api_key: String) -> OpenAIClient {
+    let config = OpenAIConfig::new().with_api_key(api_key);
+    Client::with_config(config)
 }
 
 #[allow(dead_code)]
 pub async fn completion(
-    client: &Client,
+    client: &OpenAIClient,
     args: CreateChatCompletionRequest,
 ) -> Result<CreateChatCompletionResponse> {
     client
@@ -21,7 +24,7 @@ pub async fn completion(
 }
 
 pub async fn completion_stream(
-    client: &Client,
+    client: &OpenAIClient,
     args: CreateChatCompletionRequest,
 ) -> Result<ChatCompletionResponseStream> {
     client

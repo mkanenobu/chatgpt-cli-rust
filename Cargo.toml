@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.71"
-async-openai = "0.10.3"
+async-openai = "0.11.1"
 clap = { version = "4.3.3", features = ["derive"] }
 getopts = "0.2.21"
 rustyline = "11.0"

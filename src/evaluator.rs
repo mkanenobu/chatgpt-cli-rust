@@ -1,10 +1,9 @@
 use crate::message::{create_message, Messages};
-use crate::openai::completion_stream;
+use crate::openai::{completion_stream, OpenAIClient};
 use anyhow::{anyhow, Result};
 use async_openai::types::{
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs, Role as MessageRole,
 };
-use async_openai::Client as OpenAIClient;
 use futures::prelude::*;
 use spinoff::{spinners, Spinner};
 use std::io::{stdout, Write};
