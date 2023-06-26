@@ -5,7 +5,7 @@ use async_openai::types::{
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs, Role as MessageRole,
 };
 use futures::prelude::*;
-use spinoff::{spinners, Spinner};
+use spinoff::{spinners, Color, Spinner};
 use std::io::{stdout, Write};
 use stream_cancel::{StreamExt, Tripwire};
 
@@ -115,8 +115,12 @@ impl<'a> Evaluator<'a> {
     }
 
     async fn openai_completion_stream(&mut self) -> Result<String> {
-        // FIXME: たぶん stdout のロックのせいでスピナーが動かない
-        let spinner = Spinner::new(spinners::Dots, "Waiting for OpenAI response...", None);
+        // FIXME: completion_stream 実行中にスピナーが止まる
+        let spinner = Spinner::new(
+            spinners::Dots,
+            "Waiting for OpenAI response...",
+            Color::Blue,
+        );
         let completion_args = self.build_completion_args()?;
         let completion_stream = completion_stream(self.openai_client, completion_args).await;
         spinner.clear();

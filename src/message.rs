@@ -3,9 +3,10 @@ use std::fmt;
 
 pub fn create_message(content: &str, role: Role) -> ChatCompletionRequestMessage {
     ChatCompletionRequestMessage {
-        content: content.to_string(),
+        content: Some(content.to_string()),
         role,
         name: None,
+        function_call: None,
     }
 }
 
