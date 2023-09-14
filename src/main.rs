@@ -35,7 +35,7 @@ async fn main() {
         let client = openai::client(api_key);
         let evaluator = Evaluator::new(&client, &mut msgs, evaluator_config);
 
-        start_repl(evaluator).await;
+        start_repl(evaluator).await.unwrap();
     } else {
         println!("API Key is not set.");
         set_api_key_prompt();

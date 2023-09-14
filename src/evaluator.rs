@@ -116,7 +116,7 @@ impl<'a> Evaluator<'a> {
 
     async fn openai_completion_stream(&mut self) -> Result<String> {
         // FIXME: completion_stream 実行中にスピナーが止まる
-        let spinner = Spinner::new(
+        let mut spinner = Spinner::new(
             spinners::Dots,
             "Waiting for OpenAI response...",
             Color::Blue,

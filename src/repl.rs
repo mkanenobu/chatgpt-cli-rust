@@ -1,15 +1,16 @@
 use crate::config::get_home_path;
 use crate::evaluator::Evaluator;
+use anyhow::Result;
 use rustyline::error::ReadlineError;
 use rustyline::history::FileHistory;
 use rustyline::Editor;
 use std::{fs, path::PathBuf, process};
 
-pub async fn start_repl(mut evaluator: Evaluator<'_>) {
-    let mut rl = Editor::<(), FileHistory>::new().unwrap();
+pub async fn start_repl(mut evaluator: Evaluator<'_>) -> Result<()> {
+    let mut rl = Editor::<(), FileHistory>::new()?;
 
-    let mut history_filepath = init_history_filepath();
-    rl.load_history(&mut history_filepath)
+    let history_filepath = init_history_filepath();
+    rl.load_history(&history_filepath)
         .unwrap_or_else(|err| eprintln!("Failed to load history: {}", err));
 
     Evaluator::print_help();
@@ -24,8 +25,8 @@ pub async fn start_repl(mut evaluator: Evaluator<'_>) {
         match readline {
             Ok(line) => {
                 let line = line.trim();
-                rl.add_history_entry(line).unwrap();
-                rl.save_history(&mut history_filepath).unwrap();
+                rl.add_history_entry(line)?;
+                rl.save_history(&history_filepath)?;
                 evaluator.eval(line).await;
             }
             Err(ReadlineError::Interrupted) => {
