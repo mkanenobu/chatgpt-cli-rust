@@ -5,6 +5,7 @@ mod openai;
 mod repl;
 mod say;
 mod set_api_key_prompt;
+mod tokenizer;
 
 use crate::config::Config;
 use crate::evaluator::{Evaluator, EvaluatorConfig};

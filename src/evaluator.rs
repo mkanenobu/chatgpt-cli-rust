@@ -1,5 +1,6 @@
 use crate::message::{create_message, Messages};
 use crate::openai::{completion_stream, OpenAIClient};
+use crate::tokenizer::get_text_token_count;
 use anyhow::{anyhow, Result};
 use async_openai::types::{
     CreateChatCompletionRequest, CreateChatCompletionRequestArgs, Role as MessageRole,
@@ -89,10 +90,16 @@ impl<'a> Evaluator<'a> {
                     return;
                 }
                 let message = self.multi_line_mode_message_stack.join("\n");
+
+                println!("Token count: {}", get_text_token_count(line));
+
                 self.messages
                     .push(create_message(&message, MessageRole::User));
                 self.multi_line_mode_message_stack = vec![];
                 let response = self.openai_completion_stream().await.unwrap();
+
+                println!("Response token count: {}", get_text_token_count(&response));
+
                 self.messages
                     .push(create_message(&response, MessageRole::Assistant));
             }
@@ -106,8 +113,13 @@ impl<'a> Evaluator<'a> {
                     return;
                 }
 
+                println!("Token count: {}", get_text_token_count(line));
+
                 self.messages.push(create_message(line, MessageRole::User));
                 let response = self.openai_completion_stream().await.unwrap();
+
+                println!("Response token count: {}", get_text_token_count(&response));
+
                 self.messages
                     .push(create_message(&response, MessageRole::Assistant));
             }
@@ -121,6 +133,7 @@ impl<'a> Evaluator<'a> {
             "Waiting for OpenAI response...",
             Color::Blue,
         );
+
         let completion_args = self.build_completion_args()?;
         let completion_stream = completion_stream(self.openai_client, completion_args).await;
         spinner.clear();
