@@ -1,6 +1,7 @@
 mod config;
 mod evaluator;
 mod message;
+mod messages;
 mod openai;
 mod repl;
 mod say;
@@ -9,7 +10,7 @@ mod tokenizer;
 
 use crate::config::Config;
 use crate::evaluator::{Evaluator, EvaluatorConfig};
-use crate::message::Messages;
+use crate::messages::Messages;
 use crate::repl::start_repl;
 use crate::set_api_key_prompt::set_api_key_prompt;
 use clap::Parser;

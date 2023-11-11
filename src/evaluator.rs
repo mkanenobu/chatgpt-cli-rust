@@ -1,10 +1,9 @@
-use crate::message::{create_message, Messages};
+use crate::message::{create_assistant_message, create_text_message};
+use crate::messages::Messages;
 use crate::openai::{completion_stream, OpenAIClient};
 use crate::tokenizer::get_text_token_count;
 use anyhow::{anyhow, Result};
-use async_openai::types::{
-    CreateChatCompletionRequest, CreateChatCompletionRequestArgs, Role as MessageRole,
-};
+use async_openai::types::{CreateChatCompletionRequest, CreateChatCompletionRequestArgs};
 use futures::prelude::*;
 use spinoff::{spinners, Color, Spinner};
 use std::io::{stdout, Write};
@@ -93,15 +92,13 @@ impl<'a> Evaluator<'a> {
 
                 println!("Token count: {}", get_text_token_count(line));
 
-                self.messages
-                    .push(create_message(&message, MessageRole::User));
+                self.messages.push(create_text_message(&message));
                 self.multi_line_mode_message_stack = vec![];
                 let response = self.openai_completion_stream().await.unwrap();
 
                 println!("Response token count: {}", get_text_token_count(&response));
 
-                self.messages
-                    .push(create_message(&response, MessageRole::Assistant));
+                self.messages.push(create_assistant_message(&response));
             }
             ".clear" => {
                 self.messages.clear();
@@ -115,13 +112,12 @@ impl<'a> Evaluator<'a> {
 
                 println!("Token count: {}", get_text_token_count(line));
 
-                self.messages.push(create_message(line, MessageRole::User));
+                self.messages.push(create_text_message(line));
                 let response = self.openai_completion_stream().await.unwrap();
 
                 println!("Response token count: {}", get_text_token_count(&response));
 
-                self.messages
-                    .push(create_message(&response, MessageRole::Assistant));
+                self.messages.push(create_assistant_message(&response));
             }
         }
     }
