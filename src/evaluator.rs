@@ -90,13 +90,16 @@ impl<'a> Evaluator<'a> {
                 }
                 let message = self.multi_line_mode_message_stack.join("\n");
 
-                println!("Token count: {}", get_text_token_count(line));
+                println!("Token count: {}", get_text_token_count(&self.model(), line));
 
                 self.messages.push(create_text_message(&message));
                 self.multi_line_mode_message_stack = vec![];
                 let response = self.openai_completion_stream().await.unwrap();
 
-                println!("Response token count: {}", get_text_token_count(&response));
+                println!(
+                    "Response token count: {}",
+                    get_text_token_count(&self.model(), &response)
+                );
 
                 self.messages.push(create_assistant_message(&response));
             }
@@ -110,16 +113,26 @@ impl<'a> Evaluator<'a> {
                     return;
                 }
 
-                println!("Token count: {}", get_text_token_count(line));
+                println!("Token count: {}", get_text_token_count(&self.model(), line));
 
                 self.messages.push(create_text_message(line));
                 let response = self.openai_completion_stream().await.unwrap();
 
-                println!("Response token count: {}", get_text_token_count(&response));
+                println!(
+                    "Response token count: {}",
+                    get_text_token_count(&self.model(), &response)
+                );
 
                 self.messages.push(create_assistant_message(&response));
             }
         }
+    }
+
+    fn model(&self) -> String {
+        self.config
+            .model
+            .clone()
+            .unwrap_or("gpt-3.5-turbo".to_string())
     }
 
     async fn openai_completion_stream(&mut self) -> Result<String> {
@@ -175,12 +188,7 @@ impl<'a> Evaluator<'a> {
 
     fn build_completion_args(&self) -> Result<CreateChatCompletionRequest> {
         CreateChatCompletionRequestArgs::default()
-            .model(
-                self.config
-                    .model
-                    .clone()
-                    .unwrap_or("gpt-3.5-turbo".to_string()),
-            )
+            .model(self.model())
             .temperature(self.config.temperature.unwrap_or(0.7))
             .top_p(self.config.top_p.unwrap_or(1.0))
             .messages(self.messages.merged_messages())

@@ -1,7 +1,7 @@
-use tiktoken_rs::p50k_base;
+use tiktoken_rs::get_bpe_from_model;
 
-pub fn get_text_token_count(text: &str) -> usize {
-    let bpe = p50k_base().unwrap();
-    let tokens = bpe.encode_with_special_tokens(text);
+pub fn get_text_token_count(model: &str, text: &str) -> usize {
+    let encoder = get_bpe_from_model(model).unwrap();
+    let tokens = encoder.encode_with_special_tokens(text);
     tokens.len()
 }
