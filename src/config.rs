@@ -30,7 +30,7 @@ impl Config {
         Config {
             api_key: None,
             system_context: None,
-            model: Some("gpt-3.5-turbo".to_string()),
+            model: Some("gpt-4".to_string()),
             temperature: Some(0.7),
             top_p: Some(1.0),
         }
