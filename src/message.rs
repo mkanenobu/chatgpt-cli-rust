@@ -3,7 +3,7 @@ use async_openai::types as openai;
 pub fn create_system_message(content: &str) -> openai::ChatCompletionRequestMessage {
     openai::ChatCompletionRequestMessage::System(openai::ChatCompletionRequestSystemMessage {
         content: content.to_string(),
-        role: Default::default(),
+        role: openai::Role::System,
         name: None,
     })
 }
