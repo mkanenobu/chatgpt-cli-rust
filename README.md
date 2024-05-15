@@ -5,11 +5,11 @@
 Build
 
 ```bash
-cargo make build
+make build
 ```
 
 Install
 
 ```bash
-cargo install --path .
+make install
 ```
