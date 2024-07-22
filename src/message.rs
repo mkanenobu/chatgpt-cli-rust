@@ -3,7 +3,6 @@ use async_openai::types as openai;
 pub fn create_system_message(content: &str) -> openai::ChatCompletionRequestMessage {
     openai::ChatCompletionRequestMessage::System(openai::ChatCompletionRequestSystemMessage {
         content: content.to_string(),
-        role: openai::Role::System,
         name: None,
     })
 }
@@ -12,7 +11,6 @@ pub fn create_system_message(content: &str) -> openai::ChatCompletionRequestMess
 pub fn create_assistant_message(content: &str) -> openai::ChatCompletionRequestMessage {
     openai::ChatCompletionRequestMessage::Assistant(openai::ChatCompletionRequestAssistantMessage {
         content: Some(content.to_string()),
-        role: Default::default(),
         tool_calls: None,
         name: None,
 
@@ -26,7 +24,6 @@ pub fn create_text_message(content: &str) -> openai::ChatCompletionRequestMessag
         content: openai::ChatCompletionRequestUserMessageContent::Text(
             content.to_string(),
         ),
-        role: Default::default(),
         name: None,
     })
 }
