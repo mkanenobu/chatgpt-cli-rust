@@ -34,11 +34,7 @@ async fn main() {
     if args.set_api_key {
         set_api_key_prompt();
     } else if let Some(api_key) = conf.api_key {
-        let client = openai::client(
-            api_key,
-            conf.use_perplexity_api
-                .unwrap_or_else(|| Config::default().use_perplexity_api.unwrap()),
-        );
+        let client = openai::client(api_key, false);
         let evaluator = Evaluator::new(&client, &mut msgs, evaluator_config);
 
         start_repl(evaluator).await.unwrap();

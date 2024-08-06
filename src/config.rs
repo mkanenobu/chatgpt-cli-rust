@@ -20,8 +20,8 @@ pub struct Config {
     #[serde(rename = "topP")]
     pub top_p: Option<f32>,
 
-    #[serde(rename = "usePerplexityApi")]
-    pub use_perplexity_api: Option<bool>,
+    // #[serde(rename = "usePerplexityApi")]
+    // pub use_perplexity_api: Option<bool>,
 }
 
 impl Config {
@@ -36,7 +36,7 @@ impl Config {
             model: Some("gpt-4".to_string()),
             temperature: Some(0.7),
             top_p: Some(1.0),
-            use_perplexity_api: Some(false),
+            // use_perplexity_api: Some(false),
         }
     }
 }
