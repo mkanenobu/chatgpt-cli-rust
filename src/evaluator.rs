@@ -90,16 +90,19 @@ impl<'a> Evaluator<'a> {
                 }
                 let message = self.multi_line_mode_message_stack.join("\n");
 
-                println!("Token count: {}", get_text_token_count(&self.model(), line));
+                let token_count = get_text_token_count(&self.model(), line);
+                if let Ok(count) = token_count {
+                    println!("Token count: {}", count);
+                }
 
                 self.messages.push(create_text_message(&message));
                 self.multi_line_mode_message_stack = vec![];
                 let response = self.openai_completion_stream().await.unwrap();
 
-                println!(
-                    "Response token count: {}",
-                    get_text_token_count(&self.model(), &response)
-                );
+                let token_count = get_text_token_count(&self.model(), &response);
+                if let Ok(count) = token_count {
+                    println!("Response token count: {}", count);
+                }
 
                 self.messages.push(create_assistant_message(&response));
             }
@@ -113,15 +116,18 @@ impl<'a> Evaluator<'a> {
                     return;
                 }
 
-                println!("Token count: {}", get_text_token_count(&self.model(), line));
+                let token_count = get_text_token_count(&self.model(), line);
+                if let Ok(count) = token_count {
+                    println!("Token count: {}", count);
+                }
 
                 self.messages.push(create_text_message(line));
                 let response = self.openai_completion_stream().await.unwrap();
 
-                println!(
-                    "Response token count: {}",
-                    get_text_token_count(&self.model(), &response)
-                );
+                let token_count = get_text_token_count(&self.model(), &response);
+                if let Ok(count) = token_count {
+                    println!("Response token count: {}", count);
+                }
 
                 self.messages.push(create_assistant_message(&response));
             }
