@@ -21,9 +21,7 @@ pub fn create_assistant_message(content: &str) -> openai::ChatCompletionRequestM
 
 pub fn create_text_message(content: &str) -> openai::ChatCompletionRequestMessage {
     openai::ChatCompletionRequestMessage::User(openai::ChatCompletionRequestUserMessage {
-        content: openai::ChatCompletionRequestUserMessageContent::Text(
-            content.to_string(),
-        ),
+        content: openai::ChatCompletionRequestUserMessageContent::Text(content.to_string()),
         name: None,
     })
 }

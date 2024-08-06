@@ -6,8 +6,13 @@ use async_openai::{config::OpenAIConfig, Client};
 
 pub type OpenAIClient = Client<OpenAIConfig>;
 
-pub fn client(api_key: String) -> OpenAIClient {
-    let config = OpenAIConfig::new().with_api_key(api_key);
+const PERPLEXITY_BASE_URL: &str = "https://api.perplexity.ai";
+
+pub fn client(api_key: String, use_perplexity_api: bool) -> OpenAIClient {
+    let mut config = OpenAIConfig::new().with_api_key(api_key);
+    if use_perplexity_api {
+        config = config.with_api_base(PERPLEXITY_BASE_URL)
+    }
     Client::with_config(config)
 }
 
